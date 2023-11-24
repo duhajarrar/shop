@@ -1,17 +1,21 @@
 package Models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Customer {
     private String customerName;
     private String password; 
     private boolean isAuthorized;
     private ShoppingCart shoppingCart;
     private Store store;
-    
+    private List<Order> orders;
 
     public Customer(String customerName, String password) {
         this.customerName = customerName;
         this.password = password;
         this.isAuthorized = false;
+        this.orders = new ArrayList<>();
     }
 
     public String getCustomerName() {
