@@ -50,6 +50,10 @@ public class Customer {
         return this.password.equals(password);
     }
 
+    public void addOrder(Order order) {
+        this.orders.add(order);
+    }
+    
     @Override
     public String toString() {
         return "Customer [customerName=" + customerName + ", isAuthorized=" + isAuthorized

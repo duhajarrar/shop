@@ -1,7 +1,6 @@
 import java.util.Scanner;
 import Models.*;
 import Models.Notification.*;
-
 import Patterns.ChainOfResponsibility.*;
 import Patterns.Command.*;
 import Patterns.Decorator.*;
@@ -11,11 +10,27 @@ import Patterns.Observer.*;
 import Patterns.Proxy.*;
 import Patterns.State.*;
 import Patterns.Strategy.*;
+/*
+ * ###########################################################################################
+ * Student name: Duha Jarrar
+ * Student #: 1225272
+ * ##########################################################################################
+ * Note 1: You can find the patterns in the comments by searching the "pattern name" + "pattern" 
+ *          (for exmple: proxy pattern) 
+ * Note 2: Most of patterns are used in the App.java file but State pattern defined in the 
+ *         Order.java file and used here, also Observers pattern implement the notify method
+ *         in order and cart
+ * Note 3: there a useres already registered you can use them by typing:
+ *         "user1" for the username and "pass1" for the password
+ * ##########################################################################################
+ */
 
 public class App {
     static Scanner scanner = new Scanner(System.in);
+    // Strategy pattern
     static PaymentProcessor paymentProcessor = new PaymentProcessor();
-    
+
+    // for Proxy pattern
     static AuthManager customersManager = new AuthManager();
     
     static Customer currentUser = null;
@@ -26,24 +41,37 @@ public class App {
     static String username = "user";
     static String password = "pass";
     
+    // Observer pattern
     static CartObserver shoppingObserver = new CartObserverImp();
     static CustomerObserver customerObserver = new CustomerObserverImp();
     static OrderObserver orderObserver = new OrderObserverImp();
     
+    // Command pattern
     static OrderInvoker invoker = new OrderInvoker();
-    static Mall mall = Mall.getInstance();
 
+    // singleton pattern
+    static Mall mall = Mall.getInstance();
     static ShoppingCart shoppingCart = mall.getShoppingCart();
+
+    // Observer pattern
     static NotificationSubject notificationSystem = new NotificationSystem();
+
+    // Memento pattern
     static ShoppingCartMemento shoppingCartMemento;
+
+    // Proxy pattern
     static ReviewProxy reviewProxy = new ReviewProxy();
     
     public static void main(String[] args) throws Exception {
+        // Observer pattern
         notificationSystem.addObserver(customerObserver);
         shoppingCart.addObserver(shoppingObserver);
         
+        // to registor users
         initializeCustomers(); 
+        // to initalize items, stors and mall, and add the items to stores then to the mall
         initializeDate();
+        // to start the application 
         run();      
     }
 
@@ -55,16 +83,20 @@ public class App {
     }
 
     private static void initializeDate() {
+        // Singleton pattern
         Mall mall = Mall.getInstance();
 
+        // Factory pattern
         StoreFactory bookStoreFactory = BookStoreFactory.getInstance();
         StoreFactory gameStoreFactory = GameStoreFactory.getInstance();
         StoreFactory shoeStoreFactory = ShoeStoreFactory.getInstance();
         
+        // Factory pattern
         Store bookStore = bookStoreFactory.createStore("Book Store");
         Store gameStore = gameStoreFactory.createStore("Puzzles Store");
         Store shoeStore = shoeStoreFactory.createStore("Shoes Store"); 
 
+        // Factory pattern
         Item book = bookStoreFactory.getItemFactory().createItem("Design Book 1",bookStore.getStoreId(),100);
         Item book1 = bookStoreFactory.getItemFactory().createItem("Security Book",bookStore.getStoreId(),50);
         Item book2 = bookStoreFactory.getItemFactory().createItem("Arabic Book",bookStore.getStoreId(),70);
@@ -72,21 +104,24 @@ public class App {
         Item discBook = bookStoreFactory.getItemFactory().createItem("Math Book",bookStore.getStoreId(),100);
         Item discountedBook = new PercentageDiscountDecorator(discBook,10);
 
+        // Factory pattern
         Item puzzle100 = gameStoreFactory.getItemFactory().createItem("Puzzles 100",gameStore.getStoreId(),10);
         Item puzzle500 = gameStoreFactory.getItemFactory().createItem("Puzzles 500",gameStore.getStoreId(),50);
         Item puzzle1000 = gameStoreFactory.getItemFactory().createItem("Puzzles 1000",gameStore.getStoreId(),100);
         Item puzzle2000 = gameStoreFactory.getItemFactory().createItem("Puzzles 2000",gameStore.getStoreId(),200);
         Item puzzle4000 = gameStoreFactory.getItemFactory().createItem("Puzzles 4000",gameStore.getStoreId(),400);
 
-
+        // Factory pattern
         Item sandal = shoeStoreFactory.getItemFactory().createItem("Sandal",shoeStore.getStoreId(),150);
         Item sportBoot = shoeStoreFactory.getItemFactory().createItem("Sports boot",shoeStore.getStoreId(),300);
         Item sportBoot1 = shoeStoreFactory.getItemFactory().createItem("Nike boot",shoeStore.getStoreId(),200);
-        Item discountedSportBoot = new QuantityDiscountDecorator(sportBoot1,100);
         Item kidsBoot = shoeStoreFactory.getItemFactory().createItem("Kids Boot",shoeStore.getStoreId(),50);
         Item boyBoot = shoeStoreFactory.getItemFactory().createItem("Boy Boot",shoeStore.getStoreId(),150);
+        
+        // Decorator pattern
+        Item discountedSportBoot = new QuantityDiscountDecorator(sportBoot1,100);
 
-
+        // Chain of responsibility pattern
         DiscountHandler quantDiscountHandler = new QuantityDiscountHandler(10);
         DiscountHandler percDiscountHandler = new PercentageDiscountHandler(20);
         quantDiscountHandler.setNextHandler(percDiscountHandler);       
@@ -137,7 +172,8 @@ public class App {
         System.out.println("\n=== Login / Registration ===");
         System.out.println("1. Login");
         System.out.println("2. Register");
-        System.out.println("3. Exit");
+        System.out.println("3. Continue as Guest");
+        System.out.println("4. Exit");
         System.out.print("Enter choice: ");
         String choice = scanner.next();
         switch (choice) {
@@ -147,7 +183,12 @@ public class App {
             case "2":
                 register();
                 break;
-            case "3":
+            case "3":{
+                currentUser = new Customer("Guest", "Gusest");
+                showFirstMenu();
+            }
+                break;
+            case "4":
                 System.exit(0);
                 break;
             default:
@@ -213,6 +254,7 @@ public class App {
             }
                 break;
             case "3":{
+                // State pattern
                 currentOrder.nextStage();
                 checkout();
                 currentOrder.printStatus();
@@ -286,6 +328,7 @@ public class App {
         switch (choice) {
             case "1":{
                 shoppingCart.addItem(currentItem);
+                // Memento pattern
                 shoppingCartMemento = shoppingCart.saveToMemento();
                 currentOrder = new Order(shoppingCart.toString());
             }
@@ -324,6 +367,7 @@ public class App {
         switch (choice) {
             case "1":{
                 currentOrder = new Order(shoppingCart.toString());
+                currentUser.addOrder(currentOrder);
                 currentOrder.printStatus();
                 System.out.println(currentOrder.toString());  
                 
@@ -339,7 +383,8 @@ public class App {
                 }else{
                     currentItem = shoppingCart.getItems().get(choice1);
                     showModifyOrderMenu();
-                    
+
+                    // Command pattern
                     OrderCommand modifyOrderCommand = new ModifyOrderCommand(currentOrder, shoppingCart.toString());
                     invoker.setCommand(modifyOrderCommand);
                     invoker.executeCommand();
@@ -349,7 +394,7 @@ public class App {
             }
                 break;
             case "3":{
-                
+                // Command pattern
                 OrderCommand cancOrderCommand = new CancelOrderCommand(currentOrder);
                 cancOrderCommand.execute();
                 shoppingCart = mall.getShoppingCart();
@@ -373,17 +418,25 @@ public class App {
         switch (choice) {
             case "1":{
                 shoppingCart.removeItem(currentItem);
-                currentOrder.modify(shoppingCart.toString());
+                // Command pattern
+                OrderCommand modiCommand = new ModifyOrderCommand(currentOrder, shoppingCart.toString());
+                invoker.setCommand(modiCommand);
+                invoker.executeCommand();
+                
             }
                 break;
             case "2":{
                 shoppingCart.addItem(currentItem);
-                currentOrder.modify(shoppingCart.toString());
+               OrderCommand modiCommand = new ModifyOrderCommand(currentOrder, shoppingCart.toString());
+                invoker.setCommand(modiCommand);
+                invoker.executeCommand();
             }
                 break;
             case "3":{
                 shoppingCart.decressItemQuantity(currentItem);
-                currentOrder.modify(shoppingCart.toString());
+                OrderCommand modiCommand = new ModifyOrderCommand(currentOrder, shoppingCart.toString());
+                invoker.setCommand(modiCommand);
+                invoker.executeCommand();
             }
                 break;
             case "4":{
@@ -425,6 +478,7 @@ public class App {
         System.out.println("2. PayPal");
         System.out.println("3. Bitcoin");
         String choice = scanner.next();
+        // Strategy pattern
         switch (choice) {
             case "1":
                 paymentProcessor.setPaymentStrategy(new CreditCardStrategy());

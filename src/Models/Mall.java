@@ -18,7 +18,7 @@ public class Mall {
         this.stores = new ArrayList<>();
         this.customers =  new ArrayList<>();
     }
-
+    // Singleton pattern
     public static Mall getInstance() {
         if (instance == null) {
             instance = new Mall();
